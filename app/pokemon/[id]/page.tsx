@@ -12,7 +12,8 @@ import {
   Target,
   Gauge,
 } from 'lucide-react'
-import { getTypeBackground, getTypeColor } from '@/lib/pokemon-colors'
+import { getTypeBackground } from '@/lib/pokemon-colors'
+import { formatStatName, processEvolutionChain } from '@/lib/utils'
 
 export default function PokemonDetail({ params }: { params: { id: string } }) {
   const [pokemon, setPokemon] = useState<any>(null)
@@ -102,61 +103,6 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
     fetchPokemonDetail()
   }, [params.id])
 
-  // Helper function to process evolution chain
-  const processEvolutionChain = async (chain: any) => {
-    const evolutions = []
-
-    // Get the base form
-    const speciesRes = await fetch(chain.species.url)
-    const speciesData = await speciesRes.json()
-    const pokemonRes = await fetch(
-      `https://pokeapi.co/api/v2/pokemon/${speciesData.id}`
-    )
-    const pokemonData = await pokemonRes.json()
-
-    evolutions.push({
-      id: pokemonData.id,
-      name: pokemonData.name,
-      image: pokemonData.sprites.other['official-artwork'].front_default,
-    })
-
-    // Process evolutions (simplified - just first evolution chain)
-    if (chain.evolves_to.length > 0) {
-      const evolution1 = chain.evolves_to[0]
-      const species1Res = await fetch(evolution1.species.url)
-      const species1Data = await species1Res.json()
-      const pokemon1Res = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${species1Data.id}`
-      )
-      const pokemon1Data = await pokemon1Res.json()
-
-      evolutions.push({
-        id: pokemon1Data.id,
-        name: pokemon1Data.name,
-        image: pokemon1Data.sprites.other['official-artwork'].front_default,
-      })
-
-      // Check for further evolution
-      if (evolution1.evolves_to.length > 0) {
-        const evolution2 = evolution1.evolves_to[0]
-        const species2Res = await fetch(evolution2.species.url)
-        const species2Data = await species2Res.json()
-        const pokemon2Res = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${species2Data.id}`
-        )
-        const pokemon2Data = await pokemon2Res.json()
-
-        evolutions.push({
-          id: pokemon2Data.id,
-          name: pokemon2Data.name,
-          image: pokemon2Data.sprites.other['official-artwork'].front_default,
-        })
-      }
-    }
-
-    return evolutions
-  }
-
   // Get stat icon
   const getStatIcon = (statName: string) => {
     switch (statName) {
@@ -174,26 +120,6 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
         return <Gauge className="w-4 h-4" />
       default:
         return null
-    }
-  }
-
-  // Format stat name
-  const formatStatName = (name: string) => {
-    switch (name) {
-      case 'hp':
-        return 'PS'
-      case 'attack':
-        return 'Ataque'
-      case 'defense':
-        return 'Defensa'
-      case 'special-attack':
-        return 'Atq. Esp.'
-      case 'special-defense':
-        return 'Def. Esp.'
-      case 'speed':
-        return 'Velocidad'
-      default:
-        return name
     }
   }
 
@@ -230,7 +156,6 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
 
   const mainType = pokemon.types[0]
   const bgColor = getTypeBackground(mainType)
-  const textColor = getTypeColor(mainType)
 
   return (
     <div className="min-h-screen bg-gray-100">
