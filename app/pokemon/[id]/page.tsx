@@ -25,46 +25,46 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
     const fetchPokemonDetail = async () => {
       setLoading(true)
       try {
+        // Obtener datos básicos del Pokémon
         const response = await fetch(
           `https://pokeapi.co/api/v2/pokemon/${params.id}`
         )
         const data = await response.json()
 
-        // Fetch species data
+        // Obtener datos de la especie
         const speciesRes = await fetch(data.species.url)
         const speciesData = await speciesRes.json()
 
-        // Get flavor text (description)
-        const spanishFlavorText =
-          speciesData.flavor_text_entries.find(
-            (entry: any) => entry.language.name === 'es'
-          ) ||
-          speciesData.flavor_text_entries.find(
-            (entry: any) => entry.language.name === 'en'
-          )
-        const description = spanishFlavorText
-          ? spanishFlavorText.flavor_text.replace(/\f/g, ' ')
-          : 'Descripción no disponible.'
+        // Función auxiliar para obtener la descripción en español o inglés
+        const getDescription = (flavorEntries: any[]) => {
+          const entry =
+            flavorEntries.find((entry) => entry.language.name === 'es') ||
+            flavorEntries.find((entry) => entry.language.name === 'en')
+          return entry
+            ? entry.flavor_text.replace(/\f/g, ' ')
+            : 'Descripción no disponible.'
+        }
 
-        // Get evolution chain
+        const description = getDescription(speciesData.flavor_text_entries)
+
+        // Obtener la cadena evolutiva, si existe
         let evolutionData: any = []
         if (speciesData.evolution_chain) {
           const evolutionRes = await fetch(speciesData.evolution_chain.url)
           const evolutionChain = await evolutionRes.json()
-
-          // Process evolution chain (simplified)
           evolutionData = await processEvolutionChain(evolutionChain.chain)
         }
 
-        // Get abilities
+        // Obtener habilidades
         const abilities = data.abilities.map((ability: any) => ({
           name: ability.ability.name,
           isHidden: ability.is_hidden,
         }))
 
-        // Get moves (limit to 10 for simplicity)
+        // Obtener movimientos (limitado a 10 para simplificar)
         const moves = data.moves.slice(0, 10).map((move: any) => move.move.name)
 
+        // Actualizar el estado con todos los detalles del Pokémon
         setPokemon({
           id: data.id,
           name: data.name,
@@ -91,7 +91,7 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
           },
         })
       } catch (error) {
-        console.error('Error fetching Pokemon details:', error)
+        console.error('Error al obtener los detalles del Pokémon:', error)
         setError(
           'No se pudieron cargar los detalles del Pokémon. Por favor, intenta de nuevo más tarde.'
         )
