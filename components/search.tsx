@@ -43,7 +43,7 @@ export function Search({ searchTerm, setSearchTerm, onSearch, onClear }: SearchP
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="Buscar Pokémon por nombre o ID..."
-            className="flex-1 py-2 px-4 outline-none border-0 h-12"
+            className="flex-1 py-2 px-4 outline-hidden border-0 h-12"
           />
           {searchTerm && (
             <button type="button" onClick={handleClear} className="p-3 text-gray-500 hover:text-gray-700">

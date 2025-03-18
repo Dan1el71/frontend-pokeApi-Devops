@@ -61,8 +61,10 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
           isHidden: ability.is_hidden,
         }))
 
-        // Obtener movimientos (limitado a 10 para simplificar)
-        const moves = data.moves.slice(0, 10).map((move: any) => move.move.name)
+        // Obtener movimientos (limitado a 100 para simplificar)
+        const moves = data.moves
+          .slice(0, 100)
+          .map((move: any) => move.move.name)
 
         // Actualizar el estado con todos los detalles del Pokémon
         setPokemon({
@@ -295,7 +297,7 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   {pokemon.sprites.front && (
                     <div className="flex flex-col items-center">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-sm">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-2xs">
                         <Image
                           src={pokemon.sprites.front || '/placeholder.svg'}
                           alt={`${pokemon.name} sprite frontal`}
@@ -311,7 +313,7 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
 
                   {pokemon.sprites.back && (
                     <div className="flex flex-col items-center">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-sm">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-2xs">
                         <Image
                           src={pokemon.sprites.back || '/placeholder.svg'}
                           alt={`${pokemon.name} sprite trasero`}
@@ -327,7 +329,7 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
 
                   {pokemon.sprites.frontShiny && (
                     <div className="flex flex-col items-center">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-sm">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-2xs">
                         <Image
                           src={pokemon.sprites.frontShiny || '/placeholder.svg'}
                           alt={`${pokemon.name} sprite frontal shiny`}
@@ -343,7 +345,7 @@ export default function PokemonDetail({ params }: { params: { id: string } }) {
 
                   {pokemon.sprites.backShiny && (
                     <div className="flex flex-col items-center">
-                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-sm">
+                      <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-lg shadow-2xs">
                         <Image
                           src={pokemon.sprites.backShiny || '/placeholder.svg'}
                           alt={`${pokemon.name} sprite trasero shiny`}
