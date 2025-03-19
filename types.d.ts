@@ -6,13 +6,19 @@ interface Pokemon {
   habitat: string
   baseExperience: number
   description: string
-  abilities: PokemonHability[] // y
-  types: PokemonTypes[] // y
-  stats: PokemonStat[] // y
-  sprites: PokemonSprite[] // y
-  species: PokemonSpecies
-  //evolution_chain: PokemonEvolutionChain
-  moves: PokemonMove[] //y
+  image: string
+  abilities: PokemonHability[]
+  types: PokemonTypes[]
+  stats: PokemonStat[]
+  sprites: PokemonSprite
+  evolutionChain: PokemonEvolutionChain[]
+  moves: PokemonMove[]
+}
+
+interface PokemonEvolutionChain {
+  id: number
+  name: string
+  image: string
 }
 
 interface PokemonHability {
@@ -29,9 +35,11 @@ interface PokemonStat {
   value: number
 }
 
-interface PokemonSprite {
-  name: string
-  url: string
+interface PokemonSprites {
+  front_default: string | null
+  back_default: string | null
+  front_shiny: string | null
+  back_shiny: string | null
 }
 
 interface PokemonMoves {

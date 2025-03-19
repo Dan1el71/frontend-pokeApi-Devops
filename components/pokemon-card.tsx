@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getTypeBackground } from '@/lib/pokemon-colors'
+import { getTypeBackground } from '@/lib/const'
 
 interface PokemonCardProps {
   pokemon: any
