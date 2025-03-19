@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Search } from '@/components/search'
 import { PokemonList } from '@/components/pokemon-list'
 import { Pagination } from '@/components/pagination'
