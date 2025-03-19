@@ -4,8 +4,12 @@ import { useState, useEffect } from 'react'
 import { Search } from '@/components/search'
 import { PokemonList } from '@/components/pokemon-list'
 import { Pagination } from '@/components/pagination'
-import { navigationPaths } from '@/lib/const'
-import { getPokemon, paginatedPokemons } from '@/services/pokemon.service'
+import { navigationPaths, pokemonLimit } from '@/lib/const'
+import {
+  getPokemon,
+  paginatedPokemons,
+  searchPokemon,
+} from '@/services/pokemon.service'
 
 export default function Home() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([])
@@ -13,20 +17,19 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(0)
   const [searchTerm, setSearchTerm] = useState<string>('')
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<Pokemon[]>([])
   const [isSearching, setIsSearching] = useState<boolean>(false)
 
-  const limit = 12
-  const offset = (currentPage - 1) * limit
+  const offset = (currentPage - 1) * pokemonLimit
 
   useEffect(() => {
     const fetchPokemons = async () => {
       setLoading(true)
 
       try {
-        const response = await paginatedPokemons(limit, offset)
+        const response = await paginatedPokemons(pokemonLimit, offset)
 
-        setTotalPages(Math.ceil(response.count / limit))
+        setTotalPages(Math.ceil(response.count / pokemonLimit))
 
         const pokemonDetails = await Promise.all(
           response.results.map(async ({ id }) => {
@@ -48,94 +51,31 @@ export default function Home() {
   }, [currentPage, isSearching, offset])
 
   const handleSearch = async (term: string) => {
-    if (!term.trim()) {
+    const trimmedTerm = term.trim()
+    if (!trimmedTerm) {
       setIsSearching(false)
       return
     }
 
     setIsSearching(true)
     setLoading(true)
+    const searchTerm = trimmedTerm.toLowerCase()
+    let results: any[] = []
 
     try {
-      // Search by ID or name
-      const searchTerm = term.toLowerCase().trim()
-      let response
-
+      results = [await getPokemon(searchTerm)]
+    } catch {
       try {
-        response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${searchTerm}`
+        const pokeSearch = await searchPokemon(searchTerm)
+        results = await Promise.all(
+          pokeSearch.map(({ id }: { id: number }) => getPokemon(id))
         )
-        const data = await response.json()
-
-        // Fetch species data
-        const speciesRes = await fetch(data.species.url)
-        const speciesData = await speciesRes.json()
-
-        const pokemonDetail = {
-          id: data.id,
-          name: data.name,
-          image: data.sprites.other['official-artwork'].front_default,
-          height: data.height / 10,
-          weight: data.weight / 10,
-          types: data.types.map((type: any) => type.type.name),
-          habitat: speciesData.habitat?.name || 'Unknown',
-          stats: data.stats.map((stat: any) => ({
-            name: stat.stat.name,
-            value: stat.base_stat,
-          })),
-          species: speciesData,
-        }
-
-        setSearchResults([pokemonDetail])
       } catch (error) {
-        // If direct search fails, try to search in all pokemon
-        console.log('Direct search failed, trying broader search')
-        const allPokemonRes = await fetch(
-          'https://pokeapi.co/api/v2/pokemon?limit=1000'
-        )
-        const allPokemonData = await allPokemonRes.json()
-
-        const filteredPokemon = allPokemonData.results
-          .filter((pokemon: any) => pokemon.name.includes(searchTerm))
-          .slice(0, 5)
-
-        if (filteredPokemon.length > 0) {
-          const detailedResults = await Promise.all(
-            filteredPokemon.map(async (pokemon: any) => {
-              const res = await fetch(pokemon.url)
-              const details = await res.json()
-
-              const speciesRes = await fetch(details.species.url)
-              const speciesData = await speciesRes.json()
-
-              console.log('Sprites:', details.sprites)
-
-              return {
-                id: details.id,
-                name: details.name,
-                image: details.sprites.front_default,
-                height: details.height / 10,
-                weight: details.weight / 10,
-                types: details.types.map((type: any) => type.type.name),
-                habitat: speciesData.habitat?.name || 'Unknown',
-                stats: details.stats.map((stat: any) => ({
-                  name: stat.stat.name,
-                  value: stat.base_stat,
-                })),
-                species: speciesData,
-              }
-            })
-          )
-
-          setSearchResults(detailedResults)
-        } else {
-          setSearchResults([])
-        }
+        console.error('Error buscando Pokémon:', error)
+        results = []
       }
-    } catch (error) {
-      console.error('Error searching Pokemon:', error)
-      setSearchResults([])
     } finally {
+      setSearchResults(results)
       setLoading(false)
     }
   }

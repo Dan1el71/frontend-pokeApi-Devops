@@ -38,3 +38,18 @@ export const paginatedPokemons = async (
     throw error
   }
 }
+
+export const searchPokemon = async (searchTerm: string) => {
+  try {
+    const { data: response } = await axios.get('/pokemon/search', {
+      params: {
+        searchTerm,
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching search results:', error)
+    throw error
+  }
+}

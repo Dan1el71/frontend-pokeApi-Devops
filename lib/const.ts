@@ -52,3 +52,5 @@ export const getTypeBackground = (type: string): string => {
 
   return typeColors[type] || '#777777'
 }
+
+export const pokemonLimit = 12
