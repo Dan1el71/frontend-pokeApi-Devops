@@ -27,8 +27,8 @@ const StatsTab = ({ stats, bgColor }: StatsTabProps) => {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {stats.map((stat: any) => (
-          <div key={stat.name} className="bg-gray-50 p-3 md:p-4 rounded-lg">
+        {stats.map((stat: any, index) => (
+          <div key={index} className="bg-gray-50 p-3 md:p-4 rounded-lg">
             <div className="flex items-center mb-2">
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
                 {getStatIcon(stat.name)}
@@ -58,10 +58,7 @@ const StatsTab = ({ stats, bgColor }: StatsTabProps) => {
           Total de Estadísticas
         </h3>
         <div className="text-xl md:text-2xl font-bold">
-          {stats.reduce(
-            (total: number, stat: any) => total + stat.value,
-            0
-          )}
+          {stats.reduce((total: number, stat: any) => total + stat.value, 0)}
         </div>
       </div>
     </div>

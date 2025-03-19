@@ -12,3 +12,29 @@ export const getPokemon = async (id: string | number): Promise<Pokemon> => {
     throw error
   }
 }
+
+export const paginatedPokemons = async (
+  limit: number,
+  offset: number
+): Promise<PaginationResponse> => {
+  try {
+    const { data: response } = await axios.get('/pokemon', {
+      params: {
+        limit,
+        offset,
+      },
+    })
+
+    const { next, previous, results, count } = response
+
+    return {
+      count,
+      next,
+      previous,
+      results,
+    }
+  } catch (error) {
+    console.log('Error fetching paginated pokemons:', error)
+    throw error
+  }
+}

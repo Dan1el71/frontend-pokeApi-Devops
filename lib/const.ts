@@ -1,3 +1,18 @@
+export const navigationPaths = [
+  {
+    name: 'Batallas',
+    url: 'https://pokeapi.co/',
+  },
+  {
+    name: 'Pokedex',
+    url: 'https://pokeapi.co/docs/v2',
+  },
+  {
+    name: 'No se',
+    url: 'https://',
+  },
+]
+
 export const pokemonSprites = [
   { type: 'front_default', label: 'Frontal' },
   { type: 'back_default', label: 'Trasero' },

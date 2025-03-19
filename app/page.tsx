@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search } from '@/components/search'
 import { PokemonList } from '@/components/pokemon-list'
 import { Pagination } from '@/components/pagination'
+import { navigationPaths } from '@/lib/const'
+import { getPokemon, paginatedPokemons } from '@/services/pokemon.service'
 
 export default function Home() {
-  const [pokemons, setPokemons] = useState<any[]>([])
+  const [pokemons, setPokemons] = useState<Pokemon[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(0)
@@ -14,43 +16,21 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState<boolean>(false)
 
-  const limit = 9
+  const limit = 12
   const offset = (currentPage - 1) * limit
 
   useEffect(() => {
     const fetchPokemons = async () => {
       setLoading(true)
-      try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=${limit}&offset=${offset}`
-        )
-        const data = await response.json()
 
-        setTotalPages(Math.ceil(data.count / limit))
+      try {
+        const response = await paginatedPokemons(limit, offset)
+
+        setTotalPages(Math.ceil(response.count / limit))
 
         const pokemonDetails = await Promise.all(
-          data.results.map(async (pokemon: any) => {
-            const res = await fetch(pokemon.url)
-            const details = await res.json()
-
-            // Fetch species data for habitat
-            const speciesRes = await fetch(details.species.url)
-            const speciesData = await speciesRes.json()
-
-            return {
-              id: details.id,
-              name: details.name,
-              image: details.sprites.other['official-artwork'].front_default,
-              height: details.height / 10, // Convert to meters
-              weight: details.weight / 10, // Convert to kg
-              types: details.types.map((type: any) => type.type.name),
-              habitat: speciesData.habitat?.name || 'Unknown',
-              stats: details.stats.map((stat: any) => ({
-                name: stat.stat.name,
-                value: stat.base_stat,
-              })),
-              species: speciesData,
-            }
+          response.results.map(async ({ id }) => {
+            return await getPokemon(id)
           })
         )
 
@@ -173,7 +153,28 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-100">
       <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="flex flex-col items-center mb-6 md:mb-8">
+        <header className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg p-2">
+            <nav>
+              <ul className="flex space-x-4">
+                {navigationPaths.slice(0, 3).map((nav, index) => (
+                  <li key={index}>
+                    <a
+                      href={nav.url}
+                      className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors
+                         relative before:content-[''] before:absolute before:bottom-0 before:left-1/2 
+                         before:w-0 before:h-px before:bg-blue-600 before:transition-all before:duration-300
+                         hover:before:w-full hover:before:left-0"
+                    >
+                      {nav.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </header>
+        <div className="flex flex-col items-center md:mb-8 py-6 md:py-8 my-4">
           <div className="w-full max-w-xl flex flex-col items-center">
             <Search
               searchTerm={searchTerm}

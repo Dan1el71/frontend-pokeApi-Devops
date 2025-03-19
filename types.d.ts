@@ -64,3 +64,15 @@ interface PaginationParams {
   limit?: number
   offset?: number
 }
+
+interface PaginationResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: [
+    {
+      id: number
+      url: string
+    }
+  ]
+}

@@ -6,34 +6,14 @@ import Link from 'next/link'
 import { getTypeBackground } from '@/lib/const'
 
 interface PokemonCardProps {
-  pokemon: any
+  pokemon: Pokemon
 }
 
 export function PokemonCard({ pokemon }: PokemonCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
-  const mainType = pokemon.types[0]
+  const mainType = pokemon.types[0].name
   const bgColor = getTypeBackground(mainType)
-
-  // Format stat name
-  const formatStatName = (name: string) => {
-    switch (name) {
-      case 'hp':
-        return 'PS'
-      case 'attack':
-        return 'Ataque'
-      case 'defense':
-        return 'Defensa'
-      case 'special-attack':
-        return 'Atq. Esp.'
-      case 'special-defense':
-        return 'Def. Esp.'
-      case 'speed':
-        return 'Velocidad'
-      default:
-        return name
-    }
-  }
 
   return (
     <div
@@ -71,26 +51,23 @@ export function PokemonCard({ pokemon }: PokemonCardProps) {
           <div>Peso: {pokemon.weight} kg</div>
           <div className="flex flex-wrap gap-1 sm:gap-2 mt-1">
             Tipo:
-            {pokemon.types.map((type: string) => (
+            {pokemon.types.map(({ name }, index) => (
               <span
-                key={type}
+                key={index}
                 className="capitalize px-2 py-0.5 rounded-full text-xs bg-white/20"
               >
-                {type}
+                {name}
               </span>
             ))}
           </div>
-          <div>
-            Hábitat:{' '}
-            {pokemon.habitat.charAt(0).toUpperCase() + pokemon.habitat.slice(1)}
-          </div>
+          <div>Hábitat: {pokemon.habitat}</div>
         </div>
 
         <div className="space-y-1.5">
-          {pokemon.stats.map((stat: any) => (
-            <div key={stat.name} className="text-xs text-white">
+          {pokemon.stats.map((stat: any, index) => (
+            <div key={index} className="text-xs text-white">
               <div className="flex justify-between mb-1">
-                <span>{formatStatName(stat.name)}</span>
+                <span>{stat.name}</span>
                 <span>{stat.value}</span>
               </div>
               <div className="w-full bg-black/20 rounded-full h-2">
