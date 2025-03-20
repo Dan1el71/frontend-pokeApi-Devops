@@ -60,22 +60,16 @@ export default function Home() {
     setIsSearching(true)
     setLoading(true)
     const searchTerm = trimmedTerm.toLowerCase()
-    let results: any[] = []
 
     try {
-      results = [await getPokemon(searchTerm)]
-    } catch {
-      try {
-        const pokeSearch = await searchPokemon(searchTerm)
-        results = await Promise.all(
-          pokeSearch.map(({ id }: { id: number }) => getPokemon(id))
-        )
-      } catch (error) {
-        console.error('Error buscando Pokémon:', error)
-        results = []
-      }
-    } finally {
+      const pokeSearch = await searchPokemon(searchTerm)
+      const results = await Promise.all(
+        pokeSearch.map(({ id }: { id: number }) => getPokemon(id))
+      )
       setSearchResults(results)
+    } catch (error) {
+      console.error('Error buscando Pokémon:', error)
+    } finally {
       setLoading(false)
     }
   }
