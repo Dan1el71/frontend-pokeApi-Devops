@@ -92,7 +92,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-100">
-      <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="container mx-auto px-4 py-20 md:py-8">
         <header className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
           <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg p-2">
             <nav>
