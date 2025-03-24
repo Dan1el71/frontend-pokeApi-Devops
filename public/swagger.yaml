@@ -1,0 +1,357 @@
+openapi: 3.0.3
+info:
+  title: PokeAPI Swagger - OpenAPI 3.0
+  description: Documentación de la API para el manejo de Pokémon
+  version: 1.0.0
+servers:
+  - url: https://backend-pokeapi-devops.onrender.com/api/v1
+    description: Servidor de la API
+tags:
+  - name: pokemon
+    description: Información acerca de los Pokémon
+paths:
+  /pokemon:
+    get:
+      tags:
+        - pokemon
+      summary: Obtiene la lista de Pokémon de forma paginada
+      description: Permite obtener un listado paginado de Pokémon. Se aceptan parámetros opcionales "limit" y "offset".
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad de elementos por página
+          required: false
+          schema:
+            type: integer
+            default: 12
+        - name: offset
+          in: query
+          description: Desplazamiento en la lista
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Operación exitosa - listado paginado de Pokémon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginationResponse'
+              example:
+                count: 964
+                next: "https://pokeapi.co/api/v2/pokemon?offset=12&limit=12"
+                previous: null
+                results:
+                  - id: 25
+                    name: "pikachu"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: "Error al obtener la lista de Pokémon"
+                error: "Detalle del error"
+  /pokemon/{parameter}:
+    get:
+      tags:
+        - pokemon
+      summary: Obtiene la información de un Pokémon por nombre o ID
+      description: Retorna la información detallada de un Pokémon, ya sea obtenido de la base de datos o de la API externa.
+      operationId: getPokemon
+      parameters:
+        - name: parameter
+          in: path
+          description: Nombre o ID del Pokémon a buscar
+          required: true
+          schema:
+            type: string
+            maxLength: 10
+            pattern: '^[a-zA-Z0-9]*$'
+            example: pikachu
+      responses:
+        '200':
+          description: Operación exitosa - información del Pokémon obtenida
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Pokemon'
+                    required:
+                      - data
+              example:
+                code: 200
+                type: "success"
+                message: "Pokémon obtenido exitosamente"
+                data:
+                  id: 25
+                  name: "pikachu"
+                  height: 4
+                  weight: 60
+                  habitat: "bosque"
+                  baseExperience: 112
+                  description: "Un Pokémon eléctrico"
+                  image: "url_de_la_imagen"
+                  abilities:
+                    - isHidden: false
+                      name: "static"
+                  types:
+                    - name: "electric"
+                  stats:
+                    - name: "speed"
+                      value: 90
+                  sprites:
+                    front_default: "url_front"
+                    back_default: "url_back"
+                    front_shiny: "url_front_shiny"
+                    back_shiny: "url_back_shiny"
+                  moves:
+                    - name: "thunderbolt"
+                  evolutionChain:
+                    - id: 26
+                      name: "raichu"
+                      image: "url_de_evolucion"
+        '400':
+          description: Parámetro inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 400
+                type: "error"
+                message: "Parámetro inválido"
+        '404':
+          description: Pokémon no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 404
+                type: "error"
+                message: "Pokémon no encontrado"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 500
+                type: "error"
+                message: "Error interno del servidor"
+  /pokemon/search:
+    get:
+      tags:
+        - pokemon
+      summary: Busca Pokémon por nombre o ID
+      description: Permite buscar Pokémon usando el parámetro de consulta "searchTerm". Si el término es numérico se busca por ID, de lo contrario se filtra por nombre.
+      parameters:
+        - name: searchTerm
+          in: query
+          description: Término de búsqueda (nombre o ID)
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa - resultado de la búsqueda
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                    example:
+                      - id: 25
+                        name: "pikachu"
+        '400':
+          description: Parámetro searchTerm inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 400
+                type: "error"
+                message: "Parámetro searchTerm inválido"
+        '500':
+          description: Error al buscar Pokémon
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                code: 500
+                type: "error"
+                message: "Error al buscar Pokémon"
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+    Pokemon:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 25
+        name:
+          type: string
+          example: "pikachu"
+        height:
+          type: integer
+          example: 4
+        weight:
+          type: integer
+          example: 60
+        habitat:
+          type: string
+          example: "bosque"
+        baseExperience:
+          type: integer
+          example: 112
+        description:
+          type: string
+          example: "Un Pokémon eléctrico"
+        image:
+          type: string
+          example: "url_de_la_imagen"
+        abilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonAbility'
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonType'
+        stats:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonStat'
+        sprites:
+          $ref: '#/components/schemas/PokemonSprites'
+        moves:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonMove'
+        evolutionChain:
+          type: array
+          items:
+            $ref: '#/components/schemas/PokemonEvolutionChain'
+    PokemonEvolutionChain:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 26
+        name:
+          type: string
+          example: "raichu"
+        image:
+          type: string
+          example: "url_de_evolucion"
+    PokemonAbility:
+      type: object
+      properties:
+        isHidden:
+          type: boolean
+          example: false
+        name:
+          type: string
+          example: "static"
+    PokemonType:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "electric"
+    PokemonStat:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "speed"
+        value:
+          type: integer
+          example: 90
+    PokemonSprites:
+      type: object
+      properties:
+        front_default:
+          type: string
+          nullable: true
+          example: "url_front"
+        back_default:
+          type: string
+          nullable: true
+          example: "url_back"
+        front_shiny:
+          type: string
+          nullable: true
+          example: "url_front_shiny"
+        back_shiny:
+          type: string
+          nullable: true
+          example: "url_back_shiny"
+    PokemonMove:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "thunderbolt"
+    PaginationResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 964
+        next:
+          type: string
+          example: "https://pokeapi.co/api/v2/pokemon?offset=12&limit=12"
+        previous:
+          type: string
+          nullable: true
+          example: null
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 25
+              name:
+                type: string
+                example: "pikachu"
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Error interno del servidor"
+        error:
+          type: string
+          example: "Detalle del error"
