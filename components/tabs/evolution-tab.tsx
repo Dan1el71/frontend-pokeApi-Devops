@@ -30,7 +30,7 @@ const EvolutionTab = ({ pokemon }: EvolutionTabProps) => {
                     {evo.name}
                   </span>
                 </Link>
-                {index < pokemon.evolutionChain.length - 1 && (
+                {evo.id !== pokemon.id && (
                   <div className="text-gray-400 text-xl md:text-2xl my-1 md:my-2">
                     ↓
                   </div>
