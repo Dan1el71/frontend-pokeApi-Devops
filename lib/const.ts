@@ -1,15 +1,15 @@
 export const navigationPaths = [
   {
-    name: 'Batallas',
-    url: 'https://pokeapi.co/',
+    name: '',
+    url: '',
   },
   {
-    name: 'Pokedex',
-    url: 'https://pokeapi.co/docs/v2',
+    name: '',
+    url: '',
   },
   {
-    name: 'No se',
-    url: 'https://',
+    name: '',
+    url: '',
   },
 ]
 
